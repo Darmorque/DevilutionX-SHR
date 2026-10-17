@@ -134,7 +134,6 @@ const char *const ShrineNames[] = {
 	N_("Thaumaturgic"),
 	N_("Fascinating"),
 	N_("Cryptic"),
-	N_("Magical"),
 	N_("Eldritch"),
 	N_("Eerie"),
 	N_("Divine"),
@@ -159,7 +158,6 @@ const char *const ShrineNames[] = {
 	// TRANSLATORS: Shrine Name Block end
 	N_("Murphy's"),
 };
-
 
 /** Maps from shrine_id to detailed shrine effect description. */
 const char *const ShrineDescriptions[] = {

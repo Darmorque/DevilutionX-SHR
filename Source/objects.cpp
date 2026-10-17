@@ -4932,3 +4932,4 @@ void SyncNakrulRoom()
 }
 
 } // namespace devilution
+

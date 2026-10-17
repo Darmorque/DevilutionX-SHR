@@ -4894,7 +4894,7 @@ StringOrView Object::name() const
 		return _("Urn");
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
-		return FormatRuntime("{:s} Shrine\n{:s}", _(ShrineNames[_oVar1]), _(ShrineDescriptions[_oVar1]));
+		return FormatRuntime("{:s}\n{:s}", _(ShrineNames[_oVar1]), _(ShrineDescriptions[_oVar1]));
 	case OBJ_SKELBOOK:
 		return _("Skeleton Tome");
 	case OBJ_BOOKSTAND:

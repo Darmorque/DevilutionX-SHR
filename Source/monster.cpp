@@ -4180,6 +4180,7 @@ void GolumAi(Monster &golem)
 		return;
 	}
 
+	// 1. ZACHOWANIE ORYGINALNE: Pełna agresja i pościg za wrogiem
 	if ((golem.flags & MFLAG_NO_ENEMY) == 0) {
 		Monster &enemy = Monsters[golem.enemy];
 		const int mex = golem.position.tile.x - enemy.position.future.x;
@@ -4209,26 +4210,41 @@ void GolumAi(Monster &golem)
 			return;
 	}
 
-	// --- ZMODYFIKOWANA LOGIKA: PODĄŻANIE ZA GRACZEM ---
-	Player &player = Players[golem.goalVar3];
-	const int distToPlayer = golem.position.tile.ApproxDistance(player.position.tile);
+	// 2. ORYGINALNY BUFOR ŚCIEŻKI (zapobiega wahaniom decyzyjnym co klatkę)
+	golem.pathCount++;
+	if (golem.pathCount > 8)
+		golem.pathCount = 5;
 
-	// Jeśli golem jest już blisko gracza (do 2 pól), zatrzymaj go, by nie blokował przejścia:
+	// 3. BRAK WROGÓW: Inteligentne nawigowanie do gracza
+	const Player &player = Players[golem.goalVar3];
+	const int distToPlayer = golem.position.tile.ApproxDistance(player.position.future);
+
+	// Gdy Golem jest blisko (promień 2 pól), po prostu czeka i nie blokuje gracza
 	if (distToPlayer <= 2) {
 		return;
 	}
 
-	// Ustaw pozycję gracza jako cel ścieżki i użyj wbudowanego algorytmu pathfindingu potworów:
-	golem.enemyPosition = player.position.tile;
-	if (AiPlanPath(golem)) {
-		return;
-	}
+	// Wyznaczamy bezpośredni kierunek ku graczowi
+	Direction md = GetDirection(golem.position.tile, player.position.future);
 
-	// Awaryjny krok bezpośrednio w stronę gracza, jeśli pełna ścieżka jest zablokowana:
-	Direction dirToPlayer = GetDirection(golem.position.tile, player.position.tile);
-	if (Walk(golem, dirToPlayer)) {
+	// Próba wykonania naturalnego kroku wprost na gracza
+	if (Walk(golem, md))
 		return;
-	}
+
+	// Omijanie przeszkód (drzwi, rogi, filary): sprawdzanie kierunków sąsiednich
+	Direction leftDir = Left(md);
+	Direction rightDir = Right(md);
+
+	if (Walk(golem, leftDir))
+		return;
+	if (Walk(golem, rightDir))
+		return;
+
+	// Jeśli nadal zablokowany (np. ciasny zakręt korytarza), sprawdź szerszy kąt
+	if (Walk(golem, Left(leftDir)))
+		return;
+	if (Walk(golem, Right(rightDir)))
+		return;
 }
 
 void DeleteMonsterList()

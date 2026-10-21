@@ -4209,19 +4209,25 @@ void GolumAi(Monster &golem)
 			return;
 	}
 
-	golem.pathCount++;
-	if (golem.pathCount > 8)
-		golem.pathCount = 5;
+	// --- ZMODYFIKOWANA LOGIKA: PODĄŻANIE ZA GRACZEM ---
+	Player &player = Players[golem.goalVar3];
+	const int distToPlayer = golem.position.tile.ApproxDistance(player.position.tile);
 
-	if (RandomWalk(golem, Players[golem.goalVar3]._pdir))
+	// Jeśli golem jest już blisko gracza (do 2 pól), zatrzymaj go, by nie blokował przejścia:
+	if (distToPlayer <= 2) {
 		return;
+	}
 
-	Direction md = Left(golem.direction);
-	for (int j = 0; j < 8; j++) {
-		md = Right(md);
-		if (Walk(golem, md)) {
-			break;
-		}
+	// Ustaw pozycję gracza jako cel ścieżki i użyj wbudowanego algorytmu pathfindingu potworów:
+	golem.enemyPosition = player.position.tile;
+	if (AiPlanPath(golem)) {
+		return;
+	}
+
+	// Awaryjny krok bezpośrednio w stronę gracza, jeśli pełna ścieżka jest zablokowana:
+	Direction dirToPlayer = GetDirection(golem.position.tile, player.position.tile);
+	if (Walk(golem, dirToPlayer)) {
+		return;
 	}
 }
 
